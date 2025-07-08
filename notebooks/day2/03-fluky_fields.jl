@@ -25,7 +25,7 @@ using Plots, RecipesBase
 # ╔═╡ 347583c6-9ed6-42af-b760-733585dbb7a6
 # edit the code below to set your name and UGent username
 
-student = (name = "Jimmy Janssen", email = "Jimmy.Janssen@UGent.be");
+student = (name = "Victor Vanthilt", email = "victor.vanthilt@UGent.be");
 
 # press the ▶ button in the bottom right of this cell to run your edits
 # or use Shift+Enter
@@ -33,13 +33,115 @@ student = (name = "Jimmy Janssen", email = "Jimmy.Janssen@UGent.be");
 # you might need to wait until all other cells in this notebook have completed running. 
 # scroll down the page to see what's up
 
+# ╔═╡ efb5380d-ab9d-4e7e-ad2b-d7beb3e28609
+@bind shape_type Select(["circles", "rectangles", "triangles"])
+
+# ╔═╡ 2b6d935c-504a-444e-8877-c41af4c32843
+struct Circle
+	x::Float64
+	y::Float64
+	R::Float64
+	function Circle(T::NamedTuple)
+		return new(T.x, T.y, T.R)
+	end
+end
+
+# ╔═╡ 409d0d25-bae3-45ed-9ba1-477fcf928bce
+area(c::Circle) = π*c.R^2
+
+# ╔═╡ 5949a413-705d-477b-8091-d517f09095de
+begin
+	function isdisjoint(s1::Circle, s2::Circle)
+		x = (s2.x - s1.x)
+		y = (s2.y - s1.y)
+		return sqrt((x^2 + y^2)) > s1.R + s2.R
+	end
+	
+	isnotdisjoint(s1::Circle, s2::Circle) = !(isdisjoint(s1, s2))
+end
+
+# ╔═╡ 2631c3fa-6393-4d48-b8f2-6b8f8df4131b
+begin
+	function circleshape(x, y, r)
+		θ = LinRange(0.0, 2π, 1000)
+		x .+ r*sin.(θ), y .+ r*cos.(θ)
+	end
+	
+	circleshape(c::Circle) = circleshape(c.x, c.y, c.R)
+end
+
+# ╔═╡ bc31c109-3a11-46b1-bc5a-5872d0cb73bd
+n_points = 100_000
+
+# ╔═╡ 47d9f887-a7e0-42e0-ad27-53b6d5b8adb2
+points = [(100rand(), 100rand()) for _ in 1:n_points]
+
+# ╔═╡ e1a4741f-415d-4a61-8ff5-a8454607d437
+function in(p::Tuple, c::Circle)
+	return sqrt((c.x - p[1])^2 + (c.y - p[2])^2) <= c.R
+end
+
+# ╔═╡ 57f8656f-7c84-47cc-9da1-62c3e74c7769
+begin
+	Random.seed!(12)
+
+	n = 100
+	Rmax = 10
+
+	circles = [(x=100rand(), y=100rand(), R=Rmax * rand()) for _ in 1:n]
+	rectangles = [(x=100rand(), y=100rand(), w=5rand()+5, h=5rand()+5) for _ in 1:n]
+	triangles = [100rand(2) |> ((x, y),)->(x1=x+4randn(), y1=y+4randn(), x2=x+4randn(), y2=y+4randn(), x3=x+4randn(), y3=y+4randn()) for _ in 1:n]
+end;
+
+# ╔═╡ d5c9526d-5dff-4fb2-8a2c-e96c0229f474
+shapes = shape_type=="circles" ? circles : (shape_type=="rectangles" ? rectangles : triangles);
+
+# ╔═╡ 9c443e96-d40c-4c9d-a0b3-3390e18911df
+shapes
+
+# ╔═╡ de71232a-1498-4db1-8fc3-65a84a93551a
+first(shapes)
+
+# ╔═╡ 0a3e5167-b87c-4264-b81d-c73af79e1315
+circs = Circle.(shapes)
+
+# ╔═╡ a7fdf0f3-4810-4c9c-8fd5-e144b602d209
+area.(circs) |> sum
+
+# ╔═╡ 59949c0b-4a6e-4237-9b1d-5a674f4849bd
+sort!(circs, by=area)
+
+# ╔═╡ 8ab747df-5114-43c9-b30b-554e88100939
+begin
+	struct LazyNotDisjoint
+		circles::Vector{Circle}
+	end
+
+	Base.getindex(LD::LazyNotDisjoint, i::Int, j::Int) = isnotdisjoint(LD.circles[i], LD.circles[j])
+	LD = LazyNotDisjoint(circs)
+end
+
 # ╔═╡ b303bde5-a395-43b8-b61f-ba1d13cef1ba
 md"""
 Submission by: **_$(student.name)_**
 """
 
-# ╔═╡ efb5380d-ab9d-4e7e-ad2b-d7beb3e28609
-@bind shape_type Select(["circles", "rectangles", "triangles"])
+# ╔═╡ b7e28115-8901-4972-b37f-9b5869735b50
+begin
+	hint(text) = Markdown.MD(Markdown.Admonition("hint", "Hint", [text]));
+	
+	md"""
+	# Project 2: Fluky fields 🌱
+	
+	As a new year's resolution, Daisy would like to [soften her driveway](https://omgeving.vlaanderen.be/nl/vlaanderen-breekt-uit-homepagina) and grow a fantastical front garden. As a founding member of the [anti-lawn movement](https://www.homesandgardens.com/gardens/what-is-the-anti-lawn-movement), Daisy is not a fan of perfectly mown lawns and wants to try something new, *fluky fields*! The idea is so simple yet genius, generate some random geometric shapes and sow accordingly. 
+	
+	![Dall-E's interpretation of the fluky fields](https://i.imgur.com/IHtBv9e.png)
+	
+	In this synthesis exercise, you will help Daisy manage her fields. The $n fields are of peculiar shapes: they are all in the shape of $(shape_type)! These little fields are part of a big piece of land that extends from 0 to 100 in both the x- and y-direction.
+	
+	> **Note:** you can choose the flavour of this exercise by picking the shapes of the fields, `circles` and `rectangles` are pretty easy, while `triangles` will put your geometry skills to the test!
+	"""
+end
 
 # ╔═╡ 2ff01603-4322-4571-b172-20b9952ff4ff
 if shape_type == "circles"
@@ -73,15 +175,6 @@ The problem is that daisy does not know how many seeds to buy. However, she is a
 
 """
 
-# ╔═╡ 409d0d25-bae3-45ed-9ba1-477fcf928bce
-
-
-# ╔═╡ a7fdf0f3-4810-4c9c-8fd5-e144b602d209
-
-
-# ╔═╡ 59949c0b-4a6e-4237-9b1d-5a674f4849bd
-
-
 # ╔═╡ 3bdf0670-2511-4fd6-be39-8d22c2945d4c
 md"""
 ### 2. Overlap
@@ -92,82 +185,6 @@ Crisis! Daisy realises that the shapes she has drawn are overlapping and the pre
 > 
 > **Optional:** count the number of shapes that lie *completely* in another shape.
 """
-
-# ╔═╡ 5949a413-705d-477b-8091-d517f09095de
-
-
-# ╔═╡ 4a507508-0532-4659-94b4-7a04bdd91fe0
-
-
-# ╔═╡ 4b29599d-d30e-4bdf-a150-d2e47e76908c
-
-
-# ╔═╡ c2055a02-3f86-4b16-936b-927493a89ce8
-
-
-# ╔═╡ faf30153-b607-48d1-8db0-1f47e2e1e62e
-md"""
-### 4. Total area within bound
-
-> As you have seen in the previous question, some fields overlap. Likewise, part of the shapes might be out bounds of the $[0,100]\times [0,100]$ larger field. Can you compute or estimate the total available area where you don't count overlapping parts multiple times?
-> 
-> Computing this exactly might be a bit tricky. So Daisy proposes an alternative solution to estimate the area. She suggests randomly throwing a large number (say, 100,000) of seeds in the big field and counting which fraction land in one of the shapes. This fraction is proportional to the part of the land covered by a field.
-> 
-> To this end, extend the function `in` such that you can check whether a point lies in one of the shapes, i.e. `(x, y) in shape`. You can use the function `count` to estimate the surface.
-"""
-
-# ╔═╡ bc31c109-3a11-46b1-bc5a-5872d0cb73bd
-n_points = 100_000
-
-# ╔═╡ 47d9f887-a7e0-42e0-ad27-53b6d5b8adb2
-points = missing
-
-# ╔═╡ e1a4741f-415d-4a61-8ff5-a8454607d437
-
-
-# ╔═╡ 8f7fb0c4-ba18-4025-b322-62c2d17aced8
-
-
-# ╔═╡ a70e9d92-c098-49e1-bb8f-4adfc55a6c98
-
-
-# ╔═╡ 95fecfbd-6969-498b-b909-ac945a4e9fbd
-
-
-# ╔═╡ b8faefbe-fb08-46cb-b349-5d2fd25cdf05
-
-
-# ╔═╡ 2a772d03-5972-4da5-8da8-adf7626db801
-md"## Data generation ⚙️"
-
-# ╔═╡ 57f8656f-7c84-47cc-9da1-62c3e74c7769
-begin
-	Random.seed!(12)
-
-	n = 100
-	Rmax = 10
-
-	circles = [(x=100rand(), y=100rand(), R=Rmax * rand()) for _ in 1:n]
-	rectangles = [(x=100rand(), y=100rand(), w=5rand()+5, h=5rand()+5) for _ in 1:n]
-	triangles = [100rand(2) |> ((x, y),)->(x1=x+4randn(), y1=y+4randn(), x2=x+4randn(), y2=y+4randn(), x3=x+4randn(), y3=y+4randn()) for _ in 1:n]
-end;
-
-# ╔═╡ b7e28115-8901-4972-b37f-9b5869735b50
-begin
-	hint(text) = Markdown.MD(Markdown.Admonition("hint", "Hint", [text]));
-	
-	md"""
-	# Project 2: Fluky fields 🌱
-	
-	As a new year's resolution, Daisy would like to [soften her driveway](https://omgeving.vlaanderen.be/nl/vlaanderen-breekt-uit-homepagina) and grow a fantastical front garden. As a founding member of the [anti-lawn movement](https://www.homesandgardens.com/gardens/what-is-the-anti-lawn-movement), Daisy is not a fan of perfectly mown lawns and wants to try something new, *fluky fields*! The idea is so simple yet genius, generate some random geometric shapes and sow accordingly. 
-	
-	![Dall-E's interpretation of the fluky fields](https://i.imgur.com/IHtBv9e.png)
-	
-	In this synthesis exercise, you will help Daisy manage her fields. The $n fields are of peculiar shapes: they are all in the shape of $(shape_type)! These little fields are part of a big piece of land that extends from 0 to 100 in both the x- and y-direction.
-	
-	> **Note:** you can choose the flavour of this exercise by picking the shapes of the fields, `circles` and `rectangles` are pretty easy, while `triangles` will put your geometry skills to the test!
-	"""
-end
 
 # ╔═╡ 8b19a9e4-5701-4e45-85a6-8e9d3b93563f
 md"""
@@ -182,14 +199,34 @@ $(hint(md"In the `plots` function set `aspect_ratio=:equal` to equalize the x- a
 $(hint(md"If you have defined a type, you make a [plotting recipe](https://docs.juliaplots.org/latest/recipes/)."))
 """
 
-# ╔═╡ d5c9526d-5dff-4fb2-8a2c-e96c0229f474
-shapes = shape_type=="circles" ? circles : (shape_type=="rectangles" ? rectangles : triangles);
+# ╔═╡ faf30153-b607-48d1-8db0-1f47e2e1e62e
+md"""
+### 4. Total area within bound
 
-# ╔═╡ 9c443e96-d40c-4c9d-a0b3-3390e18911df
-shapes
+> As you have seen in the previous question, some fields overlap. Likewise, part of the shapes might be out bounds of the $[0,100]\times [0,100]$ larger field. Can you compute or estimate the total available area where you don't count overlapping parts multiple times?
+> 
+> Computing this exactly might be a bit tricky. So Daisy proposes an alternative solution to estimate the area. She suggests randomly throwing a large number (say, 100,000) of seeds in the big field and counting which fraction land in one of the shapes. This fraction is proportional to the part of the land covered by a field.
+> 
+> To this end, extend the function `in` such that you can check whether a point lies in one of the shapes, i.e. `(x, y) in shape`. You can use the function `count` to estimate the surface.
+"""
 
-# ╔═╡ de71232a-1498-4db1-8fc3-65a84a93551a
-first(shapes)
+# ╔═╡ 2a772d03-5972-4da5-8da8-adf7626db801
+md"## Data generation ⚙️"
+
+# ╔═╡ efe50717-dc25-41b7-a888-91e8d657bfca
+length(circs) - count([any([LD[i, j] for j in vcat(1:i-1, i+1:length(circs))]) for i in 1:length(circs)])
+
+# ╔═╡ 4b29599d-d30e-4bdf-a150-d2e47e76908c
+begin
+	plt = plot(aspect_ratio=:equal, legend=false, size=(1200, 1200))
+	for circ in circs
+		plot!(circleshape(circ), seriestype=:shape, color=:blue, stroke=false)
+	end
+	plt
+end
+
+# ╔═╡ 8f7fb0c4-ba18-4025-b322-62c2d17aced8
+count(any.([[p in c for c in circs] for p in points]))
 
 # ╔═╡ 73503bf0-5dc8-4cc5-a636-e6521ef3089e
 md"""
@@ -1370,25 +1407,25 @@ version = "1.8.1+0"
 # ╟─9731ecc2-a3bf-47bc-8385-96147b0ddbd0
 # ╠═9c443e96-d40c-4c9d-a0b3-3390e18911df
 # ╠═de71232a-1498-4db1-8fc3-65a84a93551a
+# ╠═2b6d935c-504a-444e-8877-c41af4c32843
+# ╠═0a3e5167-b87c-4264-b81d-c73af79e1315
 # ╟─4826f7b8-0922-4a2d-abd4-426aa43c293a
 # ╠═409d0d25-bae3-45ed-9ba1-477fcf928bce
 # ╠═a7fdf0f3-4810-4c9c-8fd5-e144b602d209
 # ╠═59949c0b-4a6e-4237-9b1d-5a674f4849bd
 # ╟─3bdf0670-2511-4fd6-be39-8d22c2945d4c
 # ╠═5949a413-705d-477b-8091-d517f09095de
-# ╠═4a507508-0532-4659-94b4-7a04bdd91fe0
+# ╠═8ab747df-5114-43c9-b30b-554e88100939
+# ╠═efe50717-dc25-41b7-a888-91e8d657bfca
 # ╟─8b19a9e4-5701-4e45-85a6-8e9d3b93563f
 # ╠═59c37c98-9a9a-4bbc-9809-26360ead8e45
 # ╠═4b29599d-d30e-4bdf-a150-d2e47e76908c
-# ╠═c2055a02-3f86-4b16-936b-927493a89ce8
+# ╠═2631c3fa-6393-4d48-b8f2-6b8f8df4131b
 # ╟─faf30153-b607-48d1-8db0-1f47e2e1e62e
 # ╠═bc31c109-3a11-46b1-bc5a-5872d0cb73bd
 # ╠═47d9f887-a7e0-42e0-ad27-53b6d5b8adb2
 # ╠═e1a4741f-415d-4a61-8ff5-a8454607d437
 # ╠═8f7fb0c4-ba18-4025-b322-62c2d17aced8
-# ╠═a70e9d92-c098-49e1-bb8f-4adfc55a6c98
-# ╠═95fecfbd-6969-498b-b909-ac945a4e9fbd
-# ╠═b8faefbe-fb08-46cb-b349-5d2fd25cdf05
 # ╟─2a772d03-5972-4da5-8da8-adf7626db801
 # ╠═57f8656f-7c84-47cc-9da1-62c3e74c7769
 # ╠═d5c9526d-5dff-4fb2-8a2c-e96c0229f474
