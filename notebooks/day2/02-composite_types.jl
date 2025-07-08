@@ -22,7 +22,7 @@ using PlutoUI; TableOfContents()
 # ╔═╡ 372d3cf2-6173-11eb-356e-23c959c3fd89
 # edit the code below to set your name and UGent username
 
-student = (name = "Sam Janssen", email = "Sam.Janssen@UGent.be");
+student = (name = "Victor Vanthilt", email = "Victor.Vanthilt@UGent.be");
 
 # press the ▶ button in the bottom right of this cell to run your edits
 # or use Shift+Enter
@@ -96,7 +96,7 @@ rand(fauna)
 #... interact
 
 # ╔═╡ b1525c16-654b-11eb-0428-43008354b402
-
+interact(rand(fauna), rand(fauna))
 
 # ╔═╡ cf6dea8c-5d8d-11eb-3f54-4d947305f5e5
 begin
@@ -106,6 +106,12 @@ begin
 	end
 	
 # PASTE YOUR CONSTRUCTORS HERE!
+	function Point(x::T1, y::T2) where {T1, T2}
+		T = promote_type(T1, T2)
+		return Point{T}(T(x), T(y))
+	end
+
+	Point(x) = Point(x, x)
 end
 
 # ╔═╡ d84355d4-5d8d-11eb-2c2c-21daf0364c21
@@ -154,29 +160,14 @@ end
 # ╔═╡ e3759d4c-5d90-11eb-0bea-bb4247623ec2
 25 ∈ Squares(10)
 
-# ╔═╡ 07998440-5d91-11eb-1a65-8de428eac89c
-sum(Squares(18093))
-
-# ╔═╡ e11b0b10-6621-11eb-0bdb-f3719cc92a20
-@elapsed sum(Squares(18093))
-
 # ╔═╡ 192d9fd4-5d91-11eb-1cb9-c706aad03480
-#Base.eltype(::Type{Squares}) = Int
+Base.eltype(::Type{Squares}) = Int
 
 # ╔═╡ 1fa68c72-5d91-11eb-1102-c18460e92ee6
-#Base.length(S::Squares) = S.count
+Base.length(S::Squares) = S.count
 
 # ╔═╡ 2270e790-5d91-11eb-20e5-29905f232734
 collect(Squares(6))
-
-# ╔═╡ 49f1d98c-5d91-11eb-1657-f320e9fcdc0e
-#Base.sum(S::Squares) = (n = S.count; return n*(n+1)*(2n+1)÷6)
-
-# ╔═╡ 4cb68744-5d91-11eb-2b3e-e7df55888c93
-sum(Squares(18093))
-
-# ╔═╡ e99af5c0-6621-11eb-058b-45c3719930d0
-@elapsed sum(Squares(18093))
 
 # ╔═╡ e9a99a00-5d91-11eb-2c50-8be452cab83f
 struct Strang <: AbstractMatrix{Int}
@@ -192,111 +183,26 @@ Base.getindex(S::Strang, i, j) = i==j ? 2 : (abs(i - j) == 1 ?  -1 : 0)
 # ╔═╡ f3c3114c-5d91-11eb-1d37-6d97ea6d267f
 S = Strang(1000)  # holy cow! Looks just like a real matrix!
 
-# ╔═╡ 04dcda58-5d92-11eb-10ba-396947081338
-sum(S)  # works, but slow...
-
 # ╔═╡ 0f878dea-5d92-11eb-0000-b7484532ee70
-#Base.sum(S::Strang) = 2
-
-# ╔═╡ 11630c02-5d92-11eb-1746-4dabf327fbbe
-sum(S)
+Base.sum(S::Strang) = 2
 
 # ╔═╡ 1e65cb9c-5d92-11eb-3526-332169917fd9
 v = randn(1000)
-
-# ╔═╡ 276e9af4-5d92-11eb-1399-993570859698
-#=
-function Base.:*(S::Strang, v::Vector)
-    n = length(v)
-    @assert size(S, 2) == n
-    x = similar(v)
-    for i in 1:n
-        x[i] = v[i]
-        i > 1 && (x[i] += v[i-1])
-        i < n && (x[i] += v[i+1])
-    end
-    return x
-end
-=#
-
-# ╔═╡ 3ae60e88-5d94-11eb-0c50-1d74ea104758
-struct WizCur
-	missing # complete me!
-end
-
-# ╔═╡ 48301af2-5d94-11eb-0019-7737667c9cea
-galleons(money::WizCur) = missing # complete me!
-
-# ╔═╡ 4ea80eda-5d94-11eb-3882-21a41d2d65f8
-sickles(money::WizCur) = missing # complete me!
-
-# ╔═╡ 5af60d90-5d94-11eb-2ee4-b7bfc2caf53b
-knuts(money::WizCur) = missing # complete me!
-
-# ╔═╡ 5f7c75ac-5d94-11eb-137a-7914cd009821
-#=
-function Base.show(io::IO, money::WizCur)
-    print(io, "I am printed for WIZCUR, make me say something meaningful")
-end
-=#
-
-# ╔═╡ 678ca64a-5d94-11eb-2b85-0b706526e35b
-Base.isless(m1::WizCur, m2::WizCur) = missing # complete me!
-
-# ╔═╡ 27fcaede-5d90-11eb-1cea-91fcc4b6b0fe
-struct OrderedPair
-  x
-  y
-  function OrderedPair(x, y)
-    if x < y
-      new(x, y)
-    else
-      new(y, x)
-    end
-  end
-end
-
-# ╔═╡ 2a224fde-5d90-11eb-1c46-3fd248350914
-OrderedPair(18, 23)
-
-# ╔═╡ 2c937298-5d90-11eb-06e6-ab70b9d3701e
-OrderedPair(8, 2)
-
-# ╔═╡ 8afbd434-5d94-11eb-366b-d3d719189ef7
-Base.isgreater(m1::WizCur, m2::WizCur) = missing # complete me!
-
-# ╔═╡ 9226b2d8-5d94-11eb-2bea-491eb7dc1da7
-Base.isequal(m1::WizCur, m2::WizCur) = missing # complete me!
-
-# ╔═╡ 95146d46-5d94-11eb-22aa-c1a544e0d784
-Base.:+(m1::WizCur, m2::WizCur) = missing # complete me!
-
-# ╔═╡ 9eab40be-5d94-11eb-0c59-21f5824fb812
-money_ron = missing # complete me!
-
-# ╔═╡ a137e0f8-5d94-11eb-2209-73acad549307
-money_harry = missing # complete me!
 
 # ╔═╡ d448a2e0-5d92-11eb-18a6-9ff817992154
 begin
 	struct Vandermonde{T,VT} <: AbstractMatrix{T}
 		α::VT
 		m::Int
-		Vandermonde(α::AbstractVector{T}, m) where {T} = missing
+		Vandermonde(α::AbstractVector{T}, m) where {T} = new{T,typeof(α)}(α, m)
 	end
 
 	# take length of α as a default value of m
-	Vandermonde(α::Vector{<:Number}) = missing
+	Vandermonde(α::Vector{<:Number}) = Vandermonde(α, length(α))
 end
 
-# ╔═╡ bd91a60e-5d93-11eb-09d4-830ca69439bf
-Base.size(V::Vandermonde) = missing
-
-# ╔═╡ 39d6d5c4-5d8d-11eb-0e07-11d891ff87a3
-size(wolf)
-
 # ╔═╡ c2ecfec8-5d93-11eb-2640-07bc07f3da98
-Base.getindex(V::Vandermonde, i, j) = missing
+Base.getindex(V::Vandermonde, i, j) = V.α[i]^(j - 1)
 
 # ╔═╡ e6ce946e-cbbc-40f6-8227-c219fd22bcb3
 md"""
@@ -532,10 +438,16 @@ Complete the implementation to store and process this matrix.
 		"""
 
 # ╔═╡ cb3e91cc-5d93-11eb-020c-d73c10131755
-α = [1, 2, 3, 4]
+α = rand(100)
+
+# ╔═╡ bd91a60e-5d93-11eb-09d4-830ca69439bf
+Base.size(V::Vandermonde) = (V.m, length(α))
+
+# ╔═╡ 39d6d5c4-5d8d-11eb-0e07-11d891ff87a3
+size(wolf)
 
 # ╔═╡ d107c75e-5d93-11eb-0e6f-097b1291e460
-V = Vandermonde(α, 4)
+V = Vandermonde(α, 100)
 
 # ╔═╡ 7f02b0a0-617f-11eb-1263-91423840def3
 
@@ -557,14 +469,11 @@ Hint: `prod`
 import LinearAlgebra
 
 # ╔═╡ dc945902-5d93-11eb-1121-a7ae99c5862e
-LinearAlgebra.det(V::Vandermonde) = missing
-
-# ╔═╡ a0df19b8-3e4e-4dd3-81c2-86ebaca421ee
-#LinearAlgebra.det(collect(V))  # compare with dense matrix
+LinearAlgebra.det(V::Vandermonde) = prod([V.α[j] - V.α[i] for j in 1:V.m for i in 1:(j- 1)])
 
 # ╔═╡ d402593c-9544-4f75-93d9-d644ab303257
 md"""
-### Chemical romance
+### Chemical romance (I skipped this one and went to Color Theory)
 
 Let us build an interface to work with simple organic compounds (only containing Hydrogen, Carbon, and Oxygen). The structure takes a chemical formula as a string, e.g., `"C2H5OH"`, `"CH3CHOHCH3"` or `"C12H22O11"` and maintains the basic elements it contains.
 
@@ -660,7 +569,7 @@ begin
 	end
 
 	# make a constructor for when the values are given in [0, 255]
-	RGB(r::Integer, g::Integer, b::Integer) = missing
+	RGB(r::Integer, g::Integer, b::Integer) = RGB(r / 255, g / 255, b / 255)
 end
 
 # ╔═╡ 50fab216-b286-4d7e-a8f7-5ecba1c0129d
@@ -671,7 +580,66 @@ RGB(245, 148, 33)
 
 # ╔═╡ a9d894fa-7038-40e8-9792-0dd81549b115
 # adding colors
-Base.:+(c1::RGB, c2::RGB) = missing
+Base.:+(c1::RGB, c2::RGB) = RGB(c1.r + c2.r, c1.g + c2.g, c1.b + c2.b)
+
+# ╔═╡ 3ae60e88-5d94-11eb-0c50-1d74ea104758
+struct WizCur
+	G::Int
+	S::Int
+	K::Int
+	function WizCur(G::Int, S::Int, K::Int)
+		S += K ÷ 29
+		K = K % 29
+		G += S ÷ 17
+		S = S % 17
+		return new(G, S, K)
+	end
+end
+
+# ╔═╡ 48301af2-5d94-11eb-0019-7737667c9cea
+galleons(money::WizCur) = money.G # complete me!
+
+# ╔═╡ 4ea80eda-5d94-11eb-3882-21a41d2d65f8
+sickles(money::WizCur) = money.S # complete me!
+
+# ╔═╡ 5af60d90-5d94-11eb-2ee4-b7bfc2caf53b
+knuts(money::WizCur) = money.K # complete me!
+
+# ╔═╡ 5f7c75ac-5d94-11eb-137a-7914cd009821
+function Base.show(io::IO, money::WizCur)
+    print(io, "WizCur($(money.G), $(money.S), $(money.K))")
+end
+
+# ╔═╡ 678ca64a-5d94-11eb-2b85-0b706526e35b
+Base.isless(m1::WizCur, m2::WizCur) = all([isless(getfield(m1, f), getfield(m2, f)) for f in fieldnames(m1)]) # complete me!
+
+# ╔═╡ 27fcaede-5d90-11eb-1cea-91fcc4b6b0fe
+struct OrderedPair
+  x
+  y
+  function OrderedPair(x, y)
+    if x < y
+      new(x, y)
+    else
+      new(y, x)
+    end
+  end
+end
+
+# ╔═╡ 2a224fde-5d90-11eb-1c46-3fd248350914
+OrderedPair(18, 23)
+
+# ╔═╡ 2c937298-5d90-11eb-06e6-ab70b9d3701e
+OrderedPair(8, 2)
+
+# ╔═╡ 8afbd434-5d94-11eb-366b-d3d719189ef7
+Base.isgreater(m1::WizCur, m2::WizCur) = Base.isless(m2, m1) # complete me!
+
+# ╔═╡ 9226b2d8-5d94-11eb-2bea-491eb7dc1da7
+Base.isequal(m1::WizCur, m2::WizCur) = Base.all([isequal(getfield(m1, f), getfield(m2, f)) for f in fieldnames(m1)]) # complete me!
+
+# ╔═╡ 95146d46-5d94-11eb-22aa-c1a544e0d784
+Base.:+(m1::WizCur, m2::WizCur) = WizCur(m1.G + m2.G, m1.S + m2.S, m1.K + m2.K) # complete me!
 
 # ╔═╡ 605779e6-5d8e-11eb-3e08-c7420ef76aba
 norm(p::Point{T} where {T<:Number}) = sqrt(p.x^2 + p.y^2)
@@ -682,15 +650,55 @@ norm(p)
 # ╔═╡ 6960f8d2-5d8e-11eb-0215-2de7b54e3081
 norm(p_int)  # dispatch creates a method for this type
 
+# ╔═╡ 276e9af4-5d92-11eb-1399-993570859698
+function Base.:*(S::Strang, v::Vector)
+    n = length(v)
+    @assert size(S, 2) == n
+    x = similar(v)
+    for i in 1:n
+        x[i] = v[i]
+        i > 1 && (x[i] += v[i-1])
+        i < n && (x[i] += v[i+1])
+    end
+    return x
+end
+
+# ╔═╡ 9eab40be-5d94-11eb-0c59-21f5824fb812
+money_ron = WizCur(0, 19, 732) # complete me!
+
+# ╔═╡ a137e0f8-5d94-11eb-2209-73acad549307
+money_harry = WizCur(3, 1, 7) # complete me!
+
 # ╔═╡ a79ba114-5d94-11eb-16ae-9906c6cdf54f
 dungbomb_fund = money_ron + money_harry
 
 # ╔═╡ bb316e0c-088a-4d84-a654-5c37d24131dc
 # scalar scaling
-Base.:*(a::Real, c::RGB) = missing
+Base.:*(a::Real, c::RGB) = RGB(a * c.r, a * c.g, a * c.b)
 
 # ╔═╡ a9502b64-5d90-11eb-144c-3d7ce0949e67
 Base.iterate(S::Squares, state=1) = state > S.count ? nothing : (state*state, state+1)
+
+# ╔═╡ 49f1d98c-5d91-11eb-1657-f320e9fcdc0e
+Base.sum(S::Squares) = (n = S.count; return n*(n+1)*(2n+1)÷6)
+
+# ╔═╡ 07998440-5d91-11eb-1a65-8de428eac89c
+sum(Squares(18093))
+
+# ╔═╡ e11b0b10-6621-11eb-0bdb-f3719cc92a20
+@elapsed sum(Squares(18093))
+
+# ╔═╡ 4cb68744-5d91-11eb-2b3e-e7df55888c93
+sum(Squares(18093))
+
+# ╔═╡ e99af5c0-6621-11eb-058b-45c3719930d0
+@elapsed sum(Squares(1e7))
+
+# ╔═╡ 04dcda58-5d92-11eb-10ba-396947081338
+sum(S)  # works, but slow...
+
+# ╔═╡ 11630c02-5d92-11eb-1746-4dabf327fbbe
+sum(S)
 
 # ╔═╡ fbdb2958-6621-11eb-3cb6-a9bdeea3bdb7
 @time sum(S)
@@ -699,10 +707,16 @@ Base.iterate(S::Squares, state=1) = state > S.count ? nothing : (state*state, st
 @time sum(S)
 
 # ╔═╡ 201f59ee-5d92-11eb-33ae-51904d249dd4
-S * v  # works, but slow
+@time S * v  # works, but slow
 
 # ╔═╡ 300a8428-5d92-11eb-188b-05d00df4f6a7
 @time S * v  # fast (linear time in v)
+
+# ╔═╡ e3ea491f-6f88-4ffe-88ba-b9e213e9b88d
+@time LinearAlgebra.det(V)
+
+# ╔═╡ a0df19b8-3e4e-4dd3-81c2-86ebaca421ee
+@time LinearAlgebra.det(collect(V))  # compare with dense matrix
 
 # ╔═╡ d7c5071e-9253-4f24-b7a3-cf86d993568c
 mazout = 3glucose + 4ethanol 
@@ -722,7 +736,7 @@ struct HSV <: MyColor
     function HSV(h::Real, s::Real, v::Real)
         # Hue wraps around 360
        	# s and v in [0, 1]
-		return missing
+		return new(mod(h, 360.0), clamp(s, 0, 1), clamp(v, 0, 1))
     end
 end
 
@@ -761,7 +775,7 @@ function rgb_to_hsv(R, G, B)
 end
 
 # ╔═╡ 29595686-2ca4-4e37-a05d-7dfd2a37d736
-convert(::Type{HSV}, color::RGB) = missing
+convert(::Type{HSV}, color::RGB) = HSV(rgb_to_hsv(color.r, color.g, color.b)...)
 
 # ╔═╡ c27fb2bb-47df-449d-b1e0-3f05224ab710
 convert(HSV, col)
@@ -1376,6 +1390,7 @@ version = "17.4.0+2"
 # ╟─a9ad5b1d-1935-427b-b7f0-dc638b0e861b
 # ╠═d2a076ea-5d93-11eb-216e-f5c37d330b40
 # ╠═dc945902-5d93-11eb-1121-a7ae99c5862e
+# ╠═e3ea491f-6f88-4ffe-88ba-b9e213e9b88d
 # ╠═a0df19b8-3e4e-4dd3-81c2-86ebaca421ee
 # ╟─1c373bba-eeb6-4673-8b18-0d68b524e536
 # ╟─d402593c-9544-4f75-93d9-d644ab303257
