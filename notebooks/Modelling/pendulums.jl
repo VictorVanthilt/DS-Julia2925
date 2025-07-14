@@ -46,14 +46,6 @@ $$m\frac{d^2y(t)}{dt^2} = F_y\,.$$
 This is a second-order ODE, but by adding a second variable $v=\frac{dy(t)}{dt}$, we can turn it into a first-order system that can be readily solved numerically. This is rather easy in ModelingToolkit.
 """
 
-# ╔═╡ 20522d96-af96-44c6-a592-3bd87948d14e
-let
-	@variables y(t)
-	@parameters m g γ
-
-	eq = m * D(D(y)) ~ - m * g + γ * D(y)^2
-end
-
 # ╔═╡ 9c796170-babd-4e68-9883-814ebd92adac
 md"""
 
@@ -105,8 +97,20 @@ md"Using the symbolic differentiation, we derive the Euler-Lagrange equations."
 # ╔═╡ 7761d9d2-053a-4236-bb35-ec3095c1db32
 md"Turn in a system of ODEs, this is the same as we have seen in physics!"
 
+# ╔═╡ d2d5b839-bd25-457c-8d61-127dae30fa89
+@mtkbuild pend = ODESystem(sys_pend, t)
+
 # ╔═╡ 281a37c6-0e7a-4316-8a2a-a94e65668afe
 md"Simulation time..."
+
+# ╔═╡ c11f3434-67c8-4548-8bfb-8e8a8e39b291
+pend_prob = ODEProblem(pend, [θ=>-π/2, D(θ)=>0], (0, 10), [g=>9.81, l=>0.5, m=>1])
+
+# ╔═╡ 37206283-6f20-416c-bde8-ed9c3b33cbe1
+sol_pen = solve(pend_prob)
+
+# ╔═╡ d188825d-ea81-4c00-a61b-04818af0f243
+plot(sol_pen)
 
 # ╔═╡ eb7531f6-3f5b-442b-a7b6-3a0b90e33515
 md"If we want the system in Cartesian coordinates, it is rather simple to do so via the definitions. MTK is aware of the parameter values."
@@ -117,6 +121,14 @@ x = l * sin(θ)
 # ╔═╡ 55a3baef-9445-459c-8b28-d7787ae82b04
 y = - l * cos(θ)
 
+# ╔═╡ 20522d96-af96-44c6-a592-3bd87948d14e
+let
+	@variables y(t)
+	@parameters m g γ
+
+	eq = m * D(D(y)) ~ - m * g + γ * D(y)^2
+end
+
 # ╔═╡ 484fd08a-28c3-48c6-9983-527a877cfa43
 pot_pen = m * g * y  # potential (arbitrary reference)
 
@@ -125,18 +137,6 @@ Lp = kin_pen - pot_pen  # Lagrangian
 
 # ╔═╡ 24871f35-29db-45c8-888a-241f2c35d812
 sys_pend = expand_derivatives(D(D_θ̇(Lp))) ~ expand_derivatives(D_θ(Lp)) 
-
-# ╔═╡ d2d5b839-bd25-457c-8d61-127dae30fa89
-@mtkbuild pend = ODESystem(sys_pend, t)
-
-# ╔═╡ c11f3434-67c8-4548-8bfb-8e8a8e39b291
-pend_prob = ODEProblem(pend, [θ=>-π/2, D(θ)=>0], (0, 10), [g=>9.81, l=>0.5, m=>1])
-
-# ╔═╡ 37206283-6f20-416c-bde8-ed9c3b33cbe1
-sol_pen = solve(pend_prob)
-
-# ╔═╡ d188825d-ea81-4c00-a61b-04818af0f243
-plot(sol_pen)
 
 # ╔═╡ ce4a3b4a-da2b-4532-b78d-a35c5ab07156
 plot(sol_pen, idxs=y)

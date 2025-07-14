@@ -22,7 +22,7 @@ using PlutoUI; TableOfContents()
 # ╔═╡ e9576706-600e-11eb-1e10-e3bac02a254e
 # edit the code below to set your name and UGent username
 
-student = (name = "Hanne Janssen", email = "Hanne.Janssen@UGent.be");
+student = (name = "Victor Vanthilt", email = "victor.vanthilt@ugent.be");
 
 # press the ▶ button in the bottom right of this cell to run your edits
 # or use Shift+Enter
@@ -69,16 +69,16 @@ typeof(A)
 """
 
 # ╔═╡ b844d568-4e73-11eb-3de9-4158b0bdca12
-
+typeof(a)
 
 # ╔═╡ c662744a-4e73-11eb-1bfc-6daaf7282285
-
+typeof(s)
 
 # ╔═╡ cae803e2-4e73-11eb-13e0-23abccf86bac
-
+typeof(n)
 
 # ╔═╡ cc606026-4e73-11eb-3576-5d301a771a5a
-
+typeof(A)
 
 # ╔═╡ d3803112-4e73-11eb-2018-f72ffb7f6ec6
 md"These are all *concrete types*. Julia types are part of a hierarchical type system, forming a single, fully connected type graph. The concrete types are the leaves of this tree, whereas the inner nodes are *abstract types*. As hinted by the name, these are abstract and cannot be instantiated. They, however, help with conceptually ordering the type system."
@@ -115,22 +115,22 @@ supertype(Any)
 """
 
 # ╔═╡ e1c8cf4a-4e73-11eb-27be-d702064a0182
-
+supertype(Int8)
 
 # ╔═╡ e56a46c6-4e73-11eb-1748-1b6fe5ab0376
-
+supertype(Float64)
 
 # ╔═╡ e89adcaa-4e73-11eb-1ed8-e9c89ca633f6
-
+supertype(AbstractFloat)
 
 # ╔═╡ ec2ab2be-4e73-11eb-1a22-010439761432
-
+supertype(Real)
 
 # ╔═╡ efa205b4-4e73-11eb-1647-e9dcab5f7b7a
-
+supertype(Number)
 
 # ╔═╡ f3b5a778-4e73-11eb-1d3c-11ae19713eca
-
+supertype(Any)
 
 # ╔═╡ a0cecb24-4e74-11eb-3634-cd8dd628e9ec
 md"See how all the numbers are hierarchically represented? Note that any type is always a subtype of `Any`. We can check if an object is (sub)type using the function `isa` or use the `<:` operator."
@@ -158,22 +158,22 @@ If you are confused by the last statement, read the next section.
 """
 
 # ╔═╡ b31fe65a-4e74-11eb-0414-35f2be687c7f
-
+Float64 <: AbstractFloat
 
 # ╔═╡ c2ac0c48-4e74-11eb-10b0-91ad620fefcd
-
+Float16 <: AbstractFloat
 
 # ╔═╡ c5208cce-4e74-11eb-0615-135b510a9e8d
-
+AbstractFloat <: Number
 
 # ╔═╡ c817296a-4e74-11eb-0994-972871114f02
-
+Int <: Number
 
 # ╔═╡ cb066442-4e74-11eb-35e7-ed38d4bd8bbf
-
+Int <: AbstractFloat
 
 # ╔═╡ ce3d5380-4e74-11eb-3d9d-5f34cbbae118
-
+Integer isa Int
 
 # ╔═╡ 66343826-6012-11eb-109c-17c7a582cbc8
 
@@ -265,7 +265,7 @@ bunchofnumbers = "1.728002758512114, 0.45540258865644284, 1.4067738604851092, 1.
 "
 
 # ╔═╡ e6f31ad8-4e79-11eb-11f4-2936cb039f8d
-sumofbunchofnumbers = missing
+sumofbunchofnumbers = parse.(Float64, (split(bunchofnumbers, ","))) |> sum
 
 # ╔═╡ 03766a5c-4e75-11eb-12ad-cb2e9468e0d2
 md"""
@@ -292,13 +292,13 @@ md"""
 mynewfun(x) = x^2 .+ x
 
 # ╔═╡ 7c2b6dc0-4e76-11eb-1d78-553df82d9100
-
+@time mynewfun(1)  # returns an integer
 
 # ╔═╡ d2a4a32c-5b02-11eb-3839-8108c4965931
-
+@time mynewfun(1.0)  # returns a Float64
 
 # ╔═╡ 32d64b6e-4e75-11eb-0a2a-27214f217f70
-
+@time mynewfun(A)
 
 # ╔═╡ 861ba4c6-4e76-11eb-3d2b-bfabbd143df2
 md"The known methods can be found using the function `methods`. For example, look how many methods are defined for sum:"
@@ -316,7 +316,7 @@ md"""
 		"""
 
 # ╔═╡ b18d0532-4e76-11eb-2e8a-2bee580533cc
-
+display(methods(*))
 
 # ╔═╡ b3d15950-6015-11eb-1909-c127822a4a83
 
@@ -347,16 +347,17 @@ begin
 end
 
 # ╔═╡ ff755bf8-4e76-11eb-205f-d52529ae50ed
+methods(twice)
 
 
 # ╔═╡ 03932e5e-4e77-11eb-3769-635cc33c3c4d
-
+twice(10) # Int	
 
 # ╔═╡ 0b4f99ea-4e77-11eb-29fc-632788d179a3
-
+twice(10.0)  # Float64, also a Number but not an Int	
 
 # ╔═╡ 2a0b220a-4e77-11eb-1da7-2978422c11f4
-
+twice("A griffin! ")  # strings mean something else
 
 # ╔═╡ bf91e40a-4e77-11eb-14f1-754b1ce5130e
 md"> Julia will always select the method with the most specific type signature.
@@ -405,13 +406,13 @@ md"""
 		"""
 
 # ╔═╡ 76fe9fc4-4e77-11eb-3bc7-2dfbdff8dfc8
-
+f(1, 2.0)
 
 # ╔═╡ 7aa14c94-4e77-11eb-25c7-fb0103267b06
-
+f(Int8(1), Int8(2))
 
 # ╔═╡ 7f3a5336-4e77-11eb-2ad6-3d889dc75ac0
-
+f("one", 2)
 
 # ╔═╡ 822c01d4-4e77-11eb-1409-fbaf83c950b6
 
@@ -497,7 +498,7 @@ end
 md"You can see, it is a pretty flat hierarchy"
 
 # ╔═╡ 24588124-6018-11eb-24d1-f9c7759f4c8f
-subtypetree(Mohs)  
+subtypetree(Mohs)
 
 # ╔═╡ 443ecf72-6018-11eb-1a7a-e75e9596e4bd
 md"Next, let us define a function `mohs_scale` that dispatches on the different abstract types (minerals) and returns a hardness value"
@@ -610,18 +611,6 @@ begin
 	play(h1::Type{<:Hand}, h2::Type{<:Hand}) = h1 == h2 ? 0 : -1
 end
 
-# ╔═╡ 4f107d88-4e7d-11eb-3e49-f54ecf5163da
-play(Rock, Rock)
-
-# ╔═╡ 8331c8b0-4e7d-11eb-0690-8bbae3ed086a
-play(Rock, Scissors)
-
-# ╔═╡ 88a95ec0-4e7d-11eb-0a33-77ef82874f45
-play(Scissors, Rock)
-
-# ╔═╡ 925e2f40-4e7d-11eb-0bd2-f91913c5a23e
-play(Scissors, Paper)
-
 # ╔═╡ 629e7829-d214-4406-a082-aa1f82cb539c
 md"""
 > **Optional question: rock, paper, scissors, lizard, Spock**
@@ -634,7 +623,39 @@ adapted from: [source](https://external-content.duckduckgo.com/iu/?u=http%3A%2F%
 """
 
 # ╔═╡ 269b934c-601b-11eb-00ad-5fec0e2c37e1
+begin
+	abstract type Lizard <: Hand end
+	abstract type Spock <: Hand end
 
+	# Spock wins
+	play(::Type{Spock}, ::Type{Scissors}) = 1
+	play(::Type{Spock}, ::Type{Rock}) = 1
+
+	# Lizard Wins
+	play(::Type{Lizard}, ::Type{Spock}) = 1
+	play(::Type{Lizard}, ::Type{Paper}) = 1
+
+	# Extra Rock win
+	play(::Type{Rock}, ::Type{Lizard}) = 1
+	
+	# Extra Paper win
+	play(::Type{Paper}, ::Type{Spock}) = 1
+
+	# Extra Scissors
+	play(::Type{Scissors}, ::Type{Lizard}) = 1
+end
+
+# ╔═╡ 4f107d88-4e7d-11eb-3e49-f54ecf5163da
+play(Rock, Rock)
+
+# ╔═╡ 8331c8b0-4e7d-11eb-0690-8bbae3ed086a
+play(Rock, Scissors)
+
+# ╔═╡ 88a95ec0-4e7d-11eb-0a33-77ef82874f45
+play(Scissors, Rock)
+
+# ╔═╡ 925e2f40-4e7d-11eb-0bd2-f91913c5a23e
+play(Scissors, Paper)
 
 # ╔═╡ ce5d564a-f2f3-4b1e-aa70-85253b2ccf38
 md"""## Answers:

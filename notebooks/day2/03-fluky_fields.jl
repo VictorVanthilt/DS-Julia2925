@@ -81,6 +81,9 @@ function in(p::Tuple, c::Circle)
 	return sqrt((c.x - p[1])^2 + (c.y - p[2])^2) <= c.R
 end
 
+# ╔═╡ 8f7fb0c4-ba18-4025-b322-62c2d17aced8
+@time (n_points - count(any.([[p in c for c in circs] for p in points]))) / n_points
+
 # ╔═╡ 57f8656f-7c84-47cc-9da1-62c3e74c7769
 begin
 	Random.seed!(12)
@@ -224,9 +227,6 @@ begin
 	end
 	plt
 end
-
-# ╔═╡ 8f7fb0c4-ba18-4025-b322-62c2d17aced8
-count(any.([[p in c for c in circs] for p in points]))
 
 # ╔═╡ 73503bf0-5dc8-4cc5-a636-e6521ef3089e
 md"""
